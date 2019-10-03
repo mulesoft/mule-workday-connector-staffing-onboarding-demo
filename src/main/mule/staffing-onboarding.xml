@@ -1,0 +1,700 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:workday="http://www.mulesoft.org/schema/mule/workday" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/workday http://www.mulesoft.org/schema/mule/workday/current/mule-workday.xsd">
+	<configuration-properties file="mule-app.properties"/>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="4170fa39-76d1-4bfc-82c8-431d4b4629ea" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<workday:config-version-32-config name="Workday_Config_version_32" doc:name="Workday Config" doc:id="4ed30c79-d19e-4161-9ca4-5b9132d7246f" >
+		<workday:basic-authentication-api-v32-connection userName="${workday.username}" password="${workday.password}" tenantName="${workday.tenantname}" hostName="${workday.hostname}" />
+	</workday:config-version-32-config>
+	<flow name="onboardingFlow2" doc:id="febdc271-7145-4fdb-86ed-3e1ae5600b14" >
+		<http:listener config-ref="HTTP_Listener_config" path="/" doc:name="/" doc:id="5ba3257b-37b8-4ea0-b3b4-aff1f0c3a6dc" />
+		<parse-template location="form.html" doc:name="Parse Template" doc:id="e0bb09c3-5d55-44fe-be22-3b88e4f71ef4" />
+	</flow>
+	<flow name="create-position-flow" doc:id="f282c825-52fe-4947-9fd2-0f92d020c17b" >
+		<http:listener config-ref="HTTP_Listener_config" path="/position" doc:name="/position" doc:id="0a9d4f98-df03-4a65-a125-a8ea7a3a3f1e" />
+		<logger level="INFO" doc:name="Logger" doc:id="b5cd00ba-859c-450d-9bec-4b5e45f69421" />
+		<ee:transform doc:name="Transform Message" doc:id="5fa9240e-6c27-43a9-adab-62c045b7a2d3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ns0#Create_Position_Request @(ns0#version: "v28.0"): {
+		ns0#Business_Process_Parameters: {
+			ns0#Auto_Complete: true,
+			ns0#Run_Now: true
+		},
+		ns0#Create_Position_Data: {
+			ns0#Supervisory_Organization_Reference: {
+				ns0#ID @(ns0#"type": "Organization_Reference_ID"): payload.organizationReferenceValue
+			},
+			ns0#Position_Data: {
+				ns0#Job_Posting_Title: payload.jobPostingTitle
+			},
+			ns0#Position_Group_Restrictions_Data: {
+				ns0#Availability_Date: payload.availabilityDate,
+				ns0#Earliest_Hire_Date: payload.earliestHireDate
+			},
+			ns0#Edit_Assign_Organization_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Request_Default_Compensation_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			
+			ns0#Assign_Pay_Group_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Assign_Costing_Allocation_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			}
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="myPayload" ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ns0#Create_Position_Request @(ns0#version: "v28.0"): {
+		ns0#Business_Process_Parameters: {
+			ns0#Auto_Complete: true,
+			ns0#Run_Now: true
+		},
+		ns0#Create_Position_Data: {
+			ns0#Supervisory_Organization_Reference: {
+				ns0#ID @(ns0#"type": "Organization_Reference_ID"): payload.organizationReferenceValue
+			},
+			ns0#Position_Data: {
+				ns0#Job_Posting_Title: payload.jobPostingTitle
+			},
+			ns0#Position_Group_Restrictions_Data: {
+				ns0#Availability_Date: payload.availabilityDate,
+				ns0#Earliest_Hire_Date: payload.earliestHireDate
+			},
+			ns0#Edit_Assign_Organization_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Request_Default_Compensation_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			
+			ns0#Assign_Pay_Group_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Assign_Costing_Allocation_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			}
+		}
+	}
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<workday:staffing config-ref="Workday_Config_version_32" doc:name="Staffing||Create_Position" doc:id="bd5e7466-23c7-495f-a56a-fb558ea20528" operation="Create_Position"/>
+		<ee:transform doc:name="Transform Message" doc:id="4262a037-e6a8-4cca-89e2-1b35af5ea18a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ID: payload.ns0#Create_Position_Response.ns0#Position_Reference.*ns0#ID[1]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="6ccdedda-d85a-465c-84c7-9afd1e08506e" />
+	</flow>
+	<flow name="createApplicantFlow" doc:id="0a9b21f9-f87d-4f0d-9648-15af90ed0132" >
+		<http:listener config-ref="HTTP_Listener_config" path="/putApplicant" doc:name="/putApplicant" doc:id="cb982ee2-2f19-4d8a-9770-f26f512343f6" />
+		<logger level="INFO" doc:name="Logger" doc:id="22ec56e4-70f2-42b1-b36a-3fbabe367add" />
+		<ee:transform doc:name="Transform Message" doc:id="fe1891e9-2e60-48d0-8a89-79d576afacfb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ns0#"Put_Applicant_Request" @(ns0#version: "v28.0"): {
+		ns0#"Applicant_Data": {
+			ns0#"Personal_Data": {
+				ns0#"Name_Data": {
+					ns0#"Legal_Name_Data": {
+						ns0#"Name_Detail_Data": {
+							ns0#"Country_Reference": {
+								ns0#ID @(ns0#"type": "ISO_3166-1_Alpha-2_Code"): payload.countryId
+							},
+							ns0#"First_Name": payload.firstname,
+							ns0#"Last_Name": payload.lastname
+						}
+					}
+				},
+				ns0#"Contact_Data": {
+					ns0#"Email_Address_Data": {
+						ns0#"Email_Address": payload.email,
+						ns0#"Usage_Data" @(ns0#Public: true): {
+							ns0#"Type_Data" @(ns0#Primary: true): {
+								ns0#"Type_Reference": {
+									ns0#ID @(ns0#"type": "Communication_Usage_Type_ID"): "Home"
+								}
+							}
+						}
+					}
+				}
+			},
+			ns0#Recruiting_Data: {
+				ns0#Ineligible_for_Hire: false,
+				ns0#Positions_Considered_for_Reference: {
+					ns0#ID @(ns0#"type": "Position_ID"): payload.applicantPositionID
+				}
+			},
+			ns0#Background_Check_Data: {
+				ns0#Status_Date: payload.statusDate,
+				ns0#Status_Reference: {
+					ns0#ID @(ns0#"type": "Background_Check_Status_ID"): payload.backgroundCheckStatusId
+				}
+			}
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="myPayload" ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ns0#"Put_Applicant_Request" @(ns0#version: "v28.0"): {
+		ns0#"Applicant_Data": {
+			ns0#"Personal_Data": {
+				ns0#"Name_Data": {
+					ns0#"Legal_Name_Data": {
+						ns0#"Name_Detail_Data": {
+							ns0#"Country_Reference": {
+								ns0#ID @(ns0#"type": "ISO_3166-1_Alpha-2_Code"): payload.countryId
+							},
+							ns0#"First_Name": payload.firstname,
+							ns0#"Last_Name": payload.lastname
+						}
+					}
+				},
+				ns0#"Contact_Data": {
+					ns0#"Email_Address_Data": {
+						ns0#"Email_Address": payload.email,
+						ns0#"Usage_Data" @(ns0#Public: true): {
+							ns0#"Type_Data" @(ns0#Primary: true): {
+								ns0#"Type_Reference": {
+									ns0#ID @(ns0#"type": "Communication_Usage_Type_ID"): "Home"
+								}
+							}
+						}
+					}
+				}
+			},
+			ns0#Recruiting_Data: {
+				ns0#Ineligible_for_Hire: false,
+				ns0#Positions_Considered_for_Reference: {
+					ns0#ID @(ns0#"type": "Position_ID"): payload.applicantPositionID
+				}
+			},
+			ns0#Background_Check_Data: {
+				ns0#Status_Date: payload.statusDate,
+				ns0#Status_Reference: {
+					ns0#ID @(ns0#"type": "Background_Check_Status_ID"): payload.backgroundCheckStatusId
+				}
+			}
+		}
+	}
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<workday:staffing config-ref="Workday_Config_version_32" operation="Put_Applicant" doc:name="Staffing||Put_Applicant" doc:id="eb7fd28c-7ea1-4314-8bf5-7602e7341e81" />
+		<ee:transform doc:name="Transform Message" doc:id="741a81b5-7937-4f60-b18f-ada4c7b7b5df" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ID: payload.ns0#Put_Applicant_Response.ns0#Applicant_Reference.*ns0#ID[1]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="7bbbd620-20c6-4896-a509-16b027a9fbb7" />
+	</flow>
+	<flow name="hire-employee-flow" doc:id="d191d22b-cf1b-44d2-8088-677bdca3169d" >
+		<http:listener config-ref="HTTP_Listener_config" path="/hireEmployee" doc:name="/hireEmployee" doc:id="01aaf0ca-ad51-482a-88fc-b8b04a106524" />
+		<logger level="INFO" doc:name="Logger" doc:id="f3ced039-3c56-4735-9263-75e903a5f3c9" />
+		<ee:transform doc:name="Transform Message" doc:id="0244a5b1-0699-44bb-85ce-b3a3aa9d2c70" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ns0#Hire_Employee_Request @(ns0#version: "v28.0"): {
+		ns0#Business_Process_Parameters: {
+			ns0#Auto_Complete: true
+		},
+		ns0#Hire_Employee_Data: {
+			ns0#Applicant_Reference: {
+				ns0#ID @(ns0#"type": "Applicant_ID"): payload.applicantID
+			},
+			ns0#Organization_Reference: {
+				ns0#ID @(ns0#"type": "Organization_Reference_ID"): payload.organizationID
+			},
+			ns0#Position_Reference: {
+				ns0#ID @(ns0#"type": "Position_ID"): payload.positionID
+			},
+			ns0#Hire_Date: payload.hireDate,
+			ns0#Hire_Employee_Event_Data: {
+				ns0#Employee_Type_Reference: {
+					ns0#ID @(ns0#"type": "Employee_Type_ID"): payload.employeeTypeID
+				},
+				ns0#Position_Details: {
+					ns0#Job_Profile_Reference: {
+						ns0#ID @(ns0#"type": "Job_Profile_ID"): payload.jobProfileIDValue
+					},
+					ns0#Location_Reference: {
+						ns0#ID @(ns0#"type": "Location_ID"): payload.locationIDValue
+					},
+					ns0#Position_Time_Type_Reference: {
+						ns0#ID @(ns0#"type": "Position_Time_Type_ID"): payload.positionTimeTypeIDValue
+					}
+				}
+			},
+			ns0#Propose_Compensation_for_Hire_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Auto_Complete: true
+				}
+			},
+			ns0#Update_ID_Information_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_Government_IDs_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_Passports_and_Visas_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_License_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_Custom_IDs_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_Assign_Organization_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Assign_Pay_Group_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Review_Payroll_Interface_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Request_One_Time_Payment_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Request_Stock_Grant_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Create_Workday_Account_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Assign_Matrix_Organization_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Change_Personal_Information_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Create_Provisioning_Event_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Create_Benefit_Life_Event_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Maintain_Employee_Contracts_Sub_Business_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_Service_Dates_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Remove_Retiree_Status_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			
+			ns0#Check_Position_Budget_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Assign_Costing_Allocation_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_Background_Check_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Add_Academic_Appointment_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Assign_Employee_Collective_Agreement_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			}
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="myPayload" ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ns0#Hire_Employee_Request @(ns0#version: "v28.0"): {
+		ns0#Business_Process_Parameters: {
+			ns0#Auto_Complete: true
+		},
+		ns0#Hire_Employee_Data: {
+			ns0#Applicant_Reference: {
+				ns0#ID @(ns0#"type": "Applicant_ID"): payload.applicantID
+			},
+			ns0#Organization_Reference: {
+				ns0#ID @(ns0#"type": "Organization_Reference_ID"): payload.organizationID
+			},
+			ns0#Position_Reference: {
+				ns0#ID @(ns0#"type": "Position_ID"): payload.positionID
+			},
+			ns0#Hire_Date: payload.hireDate,
+			ns0#Hire_Employee_Event_Data: {
+				ns0#Employee_Type_Reference: {
+					ns0#ID @(ns0#"type": "Employee_Type_ID"): payload.employeeTypeID
+				},
+				ns0#Position_Details: {
+					ns0#Job_Profile_Reference: {
+						ns0#ID @(ns0#"type": "Job_Profile_ID"): payload.jobProfileIDValue
+					},
+					ns0#Location_Reference: {
+						ns0#ID @(ns0#"type": "Location_ID"): payload.locationIDValue
+					},
+					ns0#Position_Time_Type_Reference: {
+						ns0#ID @(ns0#"type": "Position_Time_Type_ID"): payload.positionTimeTypeIDValue
+					}
+				}
+			},
+			ns0#Propose_Compensation_for_Hire_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Auto_Complete: true
+				}
+			},
+			ns0#Update_ID_Information_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_Government_IDs_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_Passports_and_Visas_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_License_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_Custom_IDs_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_Assign_Organization_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Assign_Pay_Group_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Review_Payroll_Interface_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Request_One_Time_Payment_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Request_Stock_Grant_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Create_Workday_Account_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Assign_Matrix_Organization_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Change_Personal_Information_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Create_Provisioning_Event_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Create_Benefit_Life_Event_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Maintain_Employee_Contracts_Sub_Business_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_Service_Dates_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Remove_Retiree_Status_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			
+			ns0#Check_Position_Budget_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Assign_Costing_Allocation_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Edit_Background_Check_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Add_Academic_Appointment_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			},
+			ns0#Assign_Employee_Collective_Agreement_Sub_Process: {
+				ns0#Business_Sub_Process_Parameters: {
+					ns0#Skip: true
+				}
+			}
+		}
+	}
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<workday:staffing config-ref="Workday_Config_version_32" operation="Hire_Employee" doc:name="Staffing||Hire_Employee" doc:id="9051e8e0-1bd6-447c-920b-0c447ad9c423" />
+		<ee:transform doc:name="Transform Message" doc:id="57c8d291-2de3-4693-9050-b1ff9a1ea8c9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ID: payload.ns0#Hire_Employee_Event_Response.ns0#Employee_Reference.*ns0#ID[1]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="58b47506-cae0-4790-b492-dbdab3b4a609" />
+	</flow>
+	<flow name="terminate-employee-flow" doc:id="1275b014-0abd-4257-8b3a-1086d9fe5bc0" >
+		<http:listener config-ref="HTTP_Listener_config" path="/terminateEmployee" doc:name="/terminateEmployee" doc:id="c3ac9f88-cca5-4b81-95e9-08f78c8e3e55" />
+		<logger level="INFO" doc:name="Logger" doc:id="43c24612-3fc2-4407-b610-443eef9f3afd" />
+		<ee:transform doc:name="Transform Message" doc:id="4514b772-a121-48cb-8191-d96353da9a0c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ns0#Terminate_Employee_Request @(ns0#version: "v28.0"): {
+		ns0#Business_Process_Parameters: {
+			ns0#Auto_Complete: true
+		},
+		ns0#Terminate_Employee_Data: {
+			ns0#Employee_Reference: {
+				ns0#ID @(ns0#"type": "Employee_ID"): payload.employeeId
+			},
+			ns0#Termination_Date: payload.terminateDate,
+			ns0#Terminate_Event_Data: {
+				ns0#Primary_Reason_Reference: {
+					ns0#ID @(ns0#"type": "Event_Classification_Subcategory_ID"): payload.terminateReasonID
+				},
+				ns0#Close_Position: true
+			}
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="myPayload" ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ns0#Terminate_Employee_Request @(ns0#version: "v28.0"): {
+		ns0#Business_Process_Parameters: {
+			ns0#Auto_Complete: true
+		},
+		ns0#Terminate_Employee_Data: {
+			ns0#Employee_Reference: {
+				ns0#ID @(ns0#"type": "Employee_ID"): payload.employeeId
+			},
+			ns0#Termination_Date: payload.terminateDate,
+			ns0#Terminate_Event_Data: {
+				ns0#Primary_Reason_Reference: {
+					ns0#ID @(ns0#"type": "Event_Classification_Subcategory_ID"): payload.terminateReasonID
+				},
+				ns0#Close_Position: true
+			}
+		}
+	}
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<workday:staffing config-ref="Workday_Config_version_32" operation="Terminate_Employee" doc:name="Staffing||Terminate_Employee" doc:id="9968fa8c-031a-4946-915a-81b7b1d1d141" />
+		<logger level="INFO" doc:name="Logger" doc:id="7164e43b-a7cb-4a33-8926-754e54722ebf" />
+	</flow>
+	<flow name="get-employee-flow" doc:id="b047e228-95bd-4ac0-8e18-98dceb6366df" >
+		<http:listener config-ref="HTTP_Listener_config" path="/getEmployee" doc:name="/getEmployee" doc:id="07ac309e-0845-47fd-9a94-0f2e02cd503e" />
+		<logger level="INFO" doc:name="Logger" doc:id="7194c634-ace9-48ec-8840-25194f5fccb7" />
+		<ee:transform doc:name="Transform Message" doc:id="06d5f5ce-332a-461e-8e4d-87591baae032" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ns0#Get_Workers_Request @(ns0#version: "v28.0"): {
+		ns0#Request_References: {
+			ns0#Worker_Reference: {
+				ns0#ID @(ns0#"type": "Employee_ID"): payload.getEmployeeID
+			}
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="myPayload" ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 urn:com.workday/bsvc
+---
+{
+	ns0#Get_Workers_Request @(ns0#version: "v28.0"): {
+		ns0#Request_References: {
+			ns0#Worker_Reference: {
+				ns0#ID @(ns0#"type": "Employee_ID"): payload.getEmployeeID
+			}
+		}
+	}
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<workday:human-resources config-ref="Workday_Config_version_32" operation="Get_Workers" doc:name="Human_Resources||Get_Workers" doc:id="8bb2317e-776a-47f3-a653-617c181854ba" />
+		<ee:transform doc:name="Transform Message" doc:id="4947467a-6fc7-4ed8-97c5-ec03082ea379" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 urn:com.workday/bsvc
+---
+{
+	Status : "Employee is terminated: " ++ payload.ns0#Get_Workers_Response.ns0#Response_Data.*ns0#Worker.ns0#Worker_Data.ns0#Employment_Data.ns0#Worker_Status_Data.ns0#Terminated[0] as String
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="fe6596a6-1cb1-457f-a752-07cbfbc9508f" />
+	</flow>
+	</mule>

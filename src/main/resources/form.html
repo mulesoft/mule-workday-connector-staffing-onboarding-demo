@@ -1,0 +1,326 @@
+<!--
+
+    (c) 2003-2018 MuleSoft, Inc. The software in this package is published under the terms of the Commercial Free Software license V.1 a copy of which has been included with this distribution in the LICENSE.md file.
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.js"></script>
+	 <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.js"></script>
+</head>
+<body>
+	<style>
+		body {
+			padding-top: 40px;
+			padding-bottom: 40px;
+			background-color: #eee;
+		}
+		.form-signin {
+			max-width: 500px;
+			padding: 15px;
+			margin: 0 auto;
+		}
+		.form-signin .form-signin-heading,
+		.form-signin .checkbox {
+			margin-bottom: 10px;
+		}
+		.form-signin .checkbox {
+			font-weight: normal;
+		}
+		.form-signin .form-control {
+			position: relative;
+			height: auto;
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+			padding: 10px;
+			font-size: 16px;
+		}
+		.form-signin .form-control:focus {
+			z-index: 2;
+		}
+		.form-signin input[type="email"] {
+			margin-bottom: -1px;
+			border-bottom-right-radius: 0;
+			border-bottom-left-radius: 0;
+		}
+	</style>
+	<script type="text/javascript">
+		$(document).ready( function() {
+			
+			$('input[name=availabilityDate]').val(getBackwardDateBy(20));
+			$('input[name=earliestHireDate]').val(getBackwardDateBy(18));
+			
+			$('#createPositionForm').submit(function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '/position',
+                    data: $('#createPositionForm').serialize(),
+                    success: function(data) {
+                        
+                        $('input[name=applicantPositionID]').val(data.ID);
+                        $('input[name=positionID]').val(data.ID);
+                        $('input[name=organizationID]').val($('input[name=organizationReferenceValue]').val());
+                        
+                        $('#createPositionFormDiv').collapse('hide');
+                        $('#putApplicantFormDiv').collapse('show');
+                    },
+                    error: function(request, status, error){
+                		alert(request.responseText);
+                	}
+                });
+
+                return false;
+            }); 
+		});
+		$(document).ready( function() {
+			$('input[name=statusDate]').val(getBackwardDateBy(10));
+			$('input[name=hireDate]').val(getBackwardDateBy(7));
+			
+			$('#putApplicantForm').submit(function() {
+				$.ajax({
+					type: 'POST',
+					url: '/putApplicant',
+					data: $('#putApplicantForm').serialize(),
+					success: function(data) {
+                        
+                        $('input[name=applicantID]').val(data.ID);
+                        
+                        $('#putApplicantFormDiv').collapse('hide');
+                        $('#hireEmployeeFormDiv').collapse('show');
+					},
+					error: function(request, status, error){
+	            		alert(request.responseText);
+	            	}
+				});
+				
+				return false;
+			});
+		});
+ 		$(document).ready( function() {
+			$('#hireEmployeeForm').submit(function() {
+				$.ajax({
+					type: 'POST',
+					url: '/hireEmployee',
+					data: $('#hireEmployeeForm').serialize(),
+					success: function(data) {
+						
+                        $('input[name=employeeId]').val(data.ID);
+                        $('input[name=getEmployeeID]').val(data.ID);
+                        
+                        $('#hireEmployeeFormDiv').collapse('hide');
+                        $('#terminateEmployeeFormDiv').collapse('show');
+					},
+					error: function(request, status, error){
+	            		alert(request.responseText);
+	            	}
+				});
+				
+				return false;
+			});
+		}); 
+ 		
+ 		$(document).ready( function() {
+ 			$('input[name=terminateDate]').val(getBackwardDateBy(1));
+			$('#terminateEmployeeForm').submit(function() {
+				$.ajax({
+					type: 'POST',
+					url: '/terminateEmployee',
+					data: $('#terminateEmployeeForm').serialize(),
+					success: function(data) {
+						$('#terminateEmployeeFormDiv').collapse('hide');
+						$('#getEmployeeFormDiv').collapse('show');
+					},
+					error: function(request, status, error){
+	            		alert(request.responseText);
+	            	}
+				});
+				
+				return false;
+			});
+		});
+ 		
+ 		
+ 		$(document).ready( function() {
+ 			$('#getEmployeeForm').submit(function() {
+				$.ajax({
+					type: 'POST',
+					url: '/getEmployee',
+					data: $('#getEmployeeForm').serialize(),
+					success: function(data) {
+						alert(data.Status);
+						
+						$('#getEmployeeFormDiv').collapse('hide');
+					},
+					error: function(request, status, error){
+	            		alert(request.responseText);
+	            	}
+				});
+				
+				return false;
+			});
+		});
+ 		
+ 		
+ 		function getBackwardDateBy(days){
+			  var currentDate = new Date();
+			  currentDate.setDate(currentDate.getDate() - days);
+			  
+			  //"0" is added to pad the date with two digits if day
+			  //is less than 10 e.g 3 becomes 03
+			  var day = ("0" + currentDate.getDate()).slice(-2);
+			  //Get Month is Zero based index
+			  var month = ("0" + (currentDate.getMonth() + 1)).slice(-2);
+			  var year = currentDate.getFullYear();
+			  
+			  return year+"-"+month+"-"+day;
+		}
+ 		
+ 		
+ 		function getForwardDateBy(days){
+			  var currentDate = new Date();
+			  currentDate.setDate(currentDate.getDate() + days);
+			  
+			  //"0" is added to pad the date with two digits if day
+			  //is less than 10 e.g 3 becomes 03
+			  var day = ("0" + currentDate.getDate()).slice(-2);
+			  //Get Month is Zero based index
+			  var month = ("0" + (currentDate.getMonth() + 1)).slice(-2);
+			  var year = currentDate.getFullYear();
+			  
+			  return year+"-"+month+"-"+day;
+		}
+	</script>
+	<div class="container">
+		<div class="panel-group" id="accordion">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h2 class="panel-title form-signin-heading">
+						<a data-toggle="collapse" data-parent="#accordion" href="#createPositionFormDiv">Create Position</a>
+					</h2>
+				</div>
+				<div id="createPositionFormDiv" class="panel-collapse collapse in">
+					<div class="panel-body">
+						<form id="createPositionForm" class="form-signin" role="form" >
+							<label>Organization Reference ID Type</label>
+							<input type="text" name="organizationReferenceId" value="Organization_Reference_ID" class="form-control"><br>
+							<label>Organization Reference ID Value</label>
+							<input type="text" name="organizationReferenceValue" value="SUPERVISORY_ORGANIZATION-6-226" class="form-control"><br>
+							<label>Job Posting Title</label>
+							<input type="text" name="jobPostingTitle" value="HR Clerk" class="form-control" ><br>
+							<label>Availability Date</label>
+							<input type="text" name="availabilityDate" value="" class="form-control" ><br>
+							<label>Earliest Hire Date</label>
+							<input type="text" name="earliestHireDate" value="" class="form-control" ><br>
+							<input class="btn btn-lg btn-primary btn-block" type="submit" value="Create Position" ><br>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h2 class="panel-title form-signin-heading">
+						<a data-toggle="collapse" data-parent="#accordion" href="#putApplicantFormDiv">Put Applicant</a>
+					</h2>
+				</div>
+				<div id="putApplicantFormDiv" class="panel-collapse collapse">
+					<div class="panel-body">
+						<form id="putApplicantForm" class="form-signin" role="form" >
+							<label>First Name</label>
+							<input type="text" name="firstname" value="John" class="form-control"><br>
+							<label>Last Name</label>
+							<input type="text" name="lastname" value="Doe" class="form-control"><br>
+							<label>Country ID</label>
+							<input type="text" name="countryId" value="US" class="form-control"><br>
+							<label>E-mail</label>
+							<input type="email" name="email" value="john.doe@somedomain.com" class="form-control"><br>
+							<label>Status Date</label>
+							<input type="text" name="statusDate" value="" class="form-control"><br>
+							<label>Background Check Status ID</label>
+							<input type="text" name="backgroundCheckStatusId" value="BACKGROUND_CHECK_STATUS-4-2" readonly class="form-control"><br>
+							<label>Position ID</label>
+							<input type="text" name="applicantPositionID" readonly class="form-control"><br>							
+							<input class="btn btn-lg btn-primary btn-block" type="submit" value="Put Applicant"><br>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h2 class="panel-title form-signin-heading">
+						<a data-toggle="collapse" data-parent="#accordion" href="#hireEmployeeFormDiv">Hire Employee</a>
+					</h2>
+				</div>
+				<div id="hireEmployeeFormDiv" class="panel-collapse collapse">
+					<div class="panel-body">
+						<form id="hireEmployeeForm" class="form-signin" role="form" >
+							<label>Position ID</label>
+							<input type="text" name="positionID" readonly class="form-control"><br>
+							<label>Applicant ID</label>
+							<input type="text" name="applicantID"  readonly class="form-control"><br>
+							<label>Organization ID</label>
+							<input type="text" name="organizationID" readonly class="form-control"><br>
+							<label>Hire Date</label>
+							<input type="text" name="hireDate" class="form-control"><br>
+							<label>Employee Type ID</label>
+							<input type="text" name="employeeTypeID" value="Regular" class="form-control"><br>
+							<label>Job Profile ID</label>
+							<input type="text" name="jobProfileIDValue" value="30500" class="form-control"><br>							
+							<label>Location ID</label>
+							<input type="text" name="locationIDValue" value="Boston_site" class="form-control"><br>
+							<label>Position Time Type ID</label>
+							<input type="text" name="positionTimeTypeIDValue" value="Full_time" class="form-control"><br>
+							<input class="btn btn-lg btn-primary btn-block" type="submit" value="Hire Employee"><br>
+						</form>
+					</div>
+				</div>
+			</div>
+			
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h2 class="panel-title form-signin-heading">
+						<a data-toggle="collapse" data-parent="#accordion" href="#terminateEmployeeFormDiv">Terminate Employee</a>
+					</h2>
+				</div>
+				<div id="terminateEmployeeFormDiv" class="panel-collapse collapse">
+					<div class="panel-body">
+						<form id="terminateEmployeeForm" class="form-signin" role="form" >
+							<label>Employee ID</label>
+							<input type="text" name="employeeId" readonly class="form-control"><br>
+							<label>Termination Date</label>
+							<input type="text" name="terminateDate" class="form-control"><br>
+							<label>Termination Reason ID</label>
+							<input type="text" name="terminateReasonID" value="Terminate_Employee_Voluntary_OtherEmp" class="form-control"><br>
+							<input class="btn btn-lg btn-primary btn-block" type="submit" value="Terminate Employee"><br>
+						</form>
+					</div>
+				</div>
+			</div>
+			
+			
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h2 class="panel-title form-signin-heading">
+						<a data-toggle="collapse" data-parent="#accordion" href="#getEmployeeFormDiv">Get Employee</a>
+					</h2>
+				</div>
+				<div id="getEmployeeFormDiv" class="panel-collapse collapse">
+					<div class="panel-body">
+						<form id="getEmployeeForm" class="form-signin" role="form" >
+							<label>Employee ID</label>
+							<input type="text" name="getEmployeeID" readonly class="form-control"><br>
+							<input class="btn btn-lg btn-primary btn-block" type="submit" value="Get Employee"><br>
+						</form>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+</body>
+</html>
