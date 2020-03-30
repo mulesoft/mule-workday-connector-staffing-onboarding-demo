@@ -10,9 +10,9 @@ http://www.mulesoft.org/schema/mule/workday http://www.mulesoft.org/schema/mule/
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="4170fa39-76d1-4bfc-82c8-431d4b4629ea" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
-	<workday:config-version-32-config name="Workday_Config_version_32" doc:name="Workday Config" doc:id="4ed30c79-d19e-4161-9ca4-5b9132d7246f" >
-		<workday:basic-authentication-api-v32-connection userName="${workday.username}" password="${workday.password}" tenantName="${workday.tenantname}" hostName="${workday.hostname}" />
-	</workday:config-version-32-config>
+	<workday:config-version-34-config name="Workday_Config_version_34" doc:name="Workday Config" doc:id="4ed30c79-d19e-4161-9ca4-5b9132d7246f" >
+		<workday:basic-authentication-api-v34-connection userName="${workday.username}" password="${workday.password}" tenantName="${workday.tenantname}" hostName="${workday.hostname}" />
+	</workday:config-version-34-config>
 	<flow name="onboardingFlow2" doc:id="febdc271-7145-4fdb-86ed-3e1ae5600b14" >
 		<http:listener config-ref="HTTP_Listener_config" path="/" doc:name="/" doc:id="5ba3257b-37b8-4ea0-b3b4-aff1f0c3a6dc" />
 		<parse-template location="form.html" doc:name="Parse Template" doc:id="e0bb09c3-5d55-44fe-be22-3b88e4f71ef4" />
@@ -116,7 +116,7 @@ ns ns0 urn:com.workday/bsvc
 }]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<workday:staffing config-ref="Workday_Config_version_32" doc:name="Staffing||Create_Position" doc:id="bd5e7466-23c7-495f-a56a-fb558ea20528" operation="Create_Position"/>
+		<workday:staffing config-ref="Workday_Config_version_34" doc:name="Staffing||Create_Position" doc:id="bd5e7466-23c7-495f-a56a-fb558ea20528" operation="Create_Position"/>
 		<ee:transform doc:name="Transform Message" doc:id="4262a037-e6a8-4cca-89e2-1b35af5ea18a" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -233,7 +233,7 @@ ns ns0 urn:com.workday/bsvc
 }]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<workday:staffing config-ref="Workday_Config_version_32" operation="Put_Applicant" doc:name="Staffing||Put_Applicant" doc:id="eb7fd28c-7ea1-4314-8bf5-7602e7341e81" />
+		<workday:staffing config-ref="Workday_Config_version_34" operation="Put_Applicant" doc:name="Staffing||Put_Applicant" doc:id="eb7fd28c-7ea1-4314-8bf5-7602e7341e81" />
 		<ee:transform doc:name="Transform Message" doc:id="741a81b5-7937-4f60-b18f-ada4c7b7b5df" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -576,7 +576,7 @@ ns ns0 urn:com.workday/bsvc
 }]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<workday:staffing config-ref="Workday_Config_version_32" operation="Hire_Employee" doc:name="Staffing||Hire_Employee" doc:id="9051e8e0-1bd6-447c-920b-0c447ad9c423" />
+		<workday:staffing config-ref="Workday_Config_version_34" operation="Hire_Employee" doc:name="Staffing||Hire_Employee" doc:id="9051e8e0-1bd6-447c-920b-0c447ad9c423" />
 		<ee:transform doc:name="Transform Message" doc:id="57c8d291-2de3-4693-9050-b1ff9a1ea8c9" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -645,7 +645,7 @@ ns ns0 urn:com.workday/bsvc
 }]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<workday:staffing config-ref="Workday_Config_version_32" operation="Terminate_Employee" doc:name="Staffing||Terminate_Employee" doc:id="9968fa8c-031a-4946-915a-81b7b1d1d141" />
+		<workday:staffing config-ref="Workday_Config_version_34" operation="Terminate_Employee" doc:name="Staffing||Terminate_Employee" doc:id="9968fa8c-031a-4946-915a-81b7b1d1d141" />
 		<logger level="INFO" doc:name="Logger" doc:id="7164e43b-a7cb-4a33-8926-754e54722ebf" />
 	</flow>
 	<flow name="get-employee-flow" doc:id="b047e228-95bd-4ac0-8e18-98dceb6366df" >
@@ -683,7 +683,7 @@ ns ns0 urn:com.workday/bsvc
 }]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<workday:human-resources config-ref="Workday_Config_version_32" operation="Get_Workers" doc:name="Human_Resources||Get_Workers" doc:id="8bb2317e-776a-47f3-a653-617c181854ba" />
+		<workday:human-resources config-ref="Workday_Config_version_34" operation="Get_Workers" doc:name="Human_Resources||Get_Workers" doc:id="8bb2317e-776a-47f3-a653-617c181854ba" />
 		<ee:transform doc:name="Transform Message" doc:id="4947467a-6fc7-4ed8-97c5-ec03082ea379" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
