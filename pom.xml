@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.mycompany</groupId>
+	<groupId>com.mulesoft.connectors.examples</groupId>
 	<artifactId>staffing-onboarding</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>mule-application</packaging>
 
 	<name>staffing-onboarding</name>
@@ -47,7 +47,7 @@
 		<dependency>
 			<groupId>com.mulesoft.connectors</groupId>
 			<artifactId>mule-workday-connector</artifactId>
-			<version>11.1.0</version>
+			<version>12.1.0</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 	</dependencies>
