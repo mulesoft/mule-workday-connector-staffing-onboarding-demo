@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>com.mulesoft.connector</groupId>
 			<artifactId>mule-workday-connector</artifactId>
-			<version>12.1.0</version>
+			<version>13.0.0</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 	</dependencies>
